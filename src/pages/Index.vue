@@ -1,24 +1,38 @@
 <template>
-    <q-page class="flex flex-center">
+    <q-page class="flex column flex-center justify-between">
+        <div></div>
         <q-card style="width: 95vw; max-width: 500px">
             <q-card-section class="flex flex-center">
                 <img alt="Quasar logo" src="~assets/logo.svg" style="width: 300px; height: 300px" />
             </q-card-section>
 
             <q-card-actions vertical align="right">
-                <q-btn flat v-for="(link, index) of links" :key="index" type="a" :href="link.url" target="_blank">
-                    {{ link.label }}
+                <q-btn
+                    v-for="(link, index) of links"
+                    :flat="index != 0"
+                    :key="index"
+                    type="a"
+                    :href="link.url"
+                    target="_blank"
+                    :label="link.label"
+                    color="primary"
+                    class="full-width"
+                >
                     <q-tooltip v-if="link.caption"> {{ link.caption }} </q-tooltip>
                 </q-btn>
             </q-card-actions>
         </q-card>
+        <div class="text-center q-ma-sm">
+            <q-chip square dense color="primary" text-color="white">v{{ version }} </q-chip>
+        </div>
     </q-page>
 </template>
 
 <script>
     import {defineComponent, ref, onMounted} from "vue"
     import {api} from "boot/axios"
-    import {productName} from "app/package.json"
+
+    const {version, productName} = require("../../package.json")
 
     export default defineComponent({
         name: "PageIndex",
@@ -30,11 +44,15 @@
                     label: "Principal",
                     url: "https://erp.eletromarquez.app",
                     value: 1,
+                    position: 0,
                 },
             ])
 
+            const versionName = ref("")
+
             onMounted(() => {
                 document.title = productName
+                versionName.value = version
                 api.get("apps/list")
                     .then((response) => {
                         links.value = [...response.data.itens]
@@ -44,6 +62,8 @@
 
             return {
                 links,
+
+                version,
             }
         },
     })
