@@ -1,6 +1,17 @@
 <template>
     <q-page class="flex column flex-center justify-between">
-        <div></div>
+        <div class="q-ma-sm">
+            <q-btn
+                flat
+                color="white"
+                icon="facebook"
+                type="a"
+                target="_blank"
+                href="https://www.facebook.com/eletromarquez/"
+            >
+                <q-tooltip> fb.me/eletromarquez </q-tooltip>
+            </q-btn>
+        </div>
         <q-card style="width: 95vw; max-width: 500px">
             <q-card-section class="flex flex-center">
                 <img alt="Quasar logo" src="~assets/logo.svg" style="width: 300px; height: 300px" />
@@ -22,8 +33,8 @@
                 </q-btn>
             </q-card-actions>
         </q-card>
-        <div class="text-center q-ma-sm">
-            <q-chip square dense color="primary" text-color="white">v{{ version }} </q-chip>
+        <div class="q-ma-sm">
+            <q-chip square dense color="primary" text-color="white"> v{{ version }} </q-chip>
         </div>
     </q-page>
 </template>
