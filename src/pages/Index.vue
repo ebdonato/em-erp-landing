@@ -33,8 +33,9 @@
                 </q-btn>
             </q-card-actions>
         </q-card>
-        <div class="q-ma-sm">
+        <div class="column q-pa-none q-ma-none full-width justify-end items-center">
             <q-chip square dense color="primary" text-color="white"> v{{ version }} </q-chip>
+            <q-linear-progress v-if="isLoading" indeterminate color="white" />
         </div>
     </q-page>
 </template>
@@ -42,14 +43,15 @@
 <script>
     import {defineComponent, ref, onMounted} from "vue"
     import {api} from "boot/axios"
-
-    const {version, productName} = require("../../package.json")
+    import {useQuasar} from "quasar"
 
     export default defineComponent({
         name: "PageIndex",
 
         setup() {
-            const links = ref([
+            const $q = useQuasar()
+
+            const storageLinks = $q.localStorage.getItem("links") ?? [
                 {
                     caption: "Sistema Principal Eletromarquez",
                     label: "Principal",
@@ -57,23 +59,38 @@
                     value: 1,
                     position: 0,
                 },
-            ])
+            ]
 
-            const versionName = ref("")
+            const {version, productName} = require("../../package.json")
+            const isLoading = ref("false")
+            const links = ref([...storageLinks])
+
+            document.title = productName
 
             onMounted(() => {
-                document.title = productName
-                versionName.value = version
+                isLoading.value = true
+
                 api.get("apps/list")
                     .then((response) => {
                         links.value = [...response.data.itens]
+                        $q.localStorage.set("links", [...response.data.itens])
                     })
-                    .catch(console.error)
+                    .catch((error) => {
+                        console.error(error)
+
+                        $q.notify({
+                            message: "Não foi possível atualizar os links.",
+                            type: "negative",
+                        })
+                    })
+                    .finally(() => {
+                        isLoading.value = false
+                    })
             })
 
             return {
                 links,
-
+                isLoading,
                 version,
             }
         },
