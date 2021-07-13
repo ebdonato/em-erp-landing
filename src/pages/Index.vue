@@ -18,19 +18,21 @@
             </q-card-section>
 
             <q-card-actions vertical align="right">
-                <q-btn
-                    v-for="(link, index) of links"
-                    :flat="index != 0"
-                    :key="index"
-                    type="a"
-                    :href="link.url"
-                    target="_blank"
-                    :label="link.label"
-                    color="primary"
-                    class="full-width"
-                >
-                    <q-tooltip v-if="link.caption"> {{ link.caption }} </q-tooltip>
-                </q-btn>
+                <transition-group appear enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+                    <q-btn
+                        v-for="(link, index) of links"
+                        :flat="index != 0"
+                        :key="index"
+                        type="a"
+                        :href="link.url"
+                        target="_blank"
+                        :label="link.label"
+                        color="primary"
+                        class="full-width"
+                    >
+                        <q-tooltip v-if="link.caption"> {{ link.caption }} </q-tooltip>
+                    </q-btn>
+                </transition-group>
             </q-card-actions>
         </q-card>
         <div class="column q-pa-none q-ma-none full-width justify-end items-center">
@@ -41,7 +43,7 @@
 </template>
 
 <script>
-    import {defineComponent, ref, onMounted} from "vue"
+    import {defineComponent, ref} from "vue"
     import {api} from "boot/axios"
     import {useQuasar} from "quasar"
 
@@ -51,15 +53,15 @@
         setup() {
             const $q = useQuasar()
 
-            const storageLinks = $q.localStorage.getItem("links") ?? [
-                {
-                    caption: "Sistema Principal Eletromarquez",
-                    label: "Principal",
-                    url: "https://erp.eletromarquez.app",
-                    value: 1,
-                    position: 0,
-                },
-            ]
+            const defaultLink = {
+                caption: "Sistema Principal Eletromarquez",
+                label: "Principal",
+                url: "https://erp.eletromarquez.app",
+                value: 1,
+                position: 0,
+            }
+
+            const storageLinks = $q.localStorage.getItem("links") ?? [{...defaultLink}]
 
             const {version, productName} = require("../../package.json")
             const isLoading = ref("false")
@@ -67,26 +69,25 @@
 
             document.title = productName
 
-            onMounted(() => {
-                isLoading.value = true
+            isLoading.value = true
 
-                api.get("apps/list")
-                    .then((response) => {
-                        links.value = [...response.data.itens]
-                        $q.localStorage.set("links", [...response.data.itens])
-                    })
-                    .catch((error) => {
-                        console.error(error)
+            api.get("apps/list")
+                .then((response) => {
+                    links.value = [...response.data.itens]
+                    !links.value.length && links.value.push({...defaultLink})
+                    $q.localStorage.set("links", [...response.data.itens])
+                })
+                .catch((error) => {
+                    console.error(error)
 
-                        $q.notify({
-                            message: "Não foi possível atualizar os links.",
-                            type: "negative",
-                        })
+                    $q.notify({
+                        message: "Não foi possível atualizar os links.",
+                        type: "negative",
                     })
-                    .finally(() => {
-                        isLoading.value = false
-                    })
-            })
+                })
+                .finally(() => {
+                    isLoading.value = false
+                })
 
             return {
                 links,
