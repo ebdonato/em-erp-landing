@@ -4,6 +4,7 @@ node_modules
 CNAME
 .env
 .git
+docker-build-push.ps1
 
 # Quasar core related directories
 .quasar
