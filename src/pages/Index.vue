@@ -73,9 +73,9 @@
 
             api.get("apps/list")
                 .then((response) => {
-                    links.value = [...response.data.itens]
+                    links.value = [...response.data.items]
                     !links.value.length && links.value.push({...defaultLink})
-                    $q.localStorage.set("links", [...response.data.itens])
+                    $q.localStorage.set("links", [...response.data.items])
                 })
                 .catch((error) => {
                     console.error(error)
