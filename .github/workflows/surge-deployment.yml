@@ -1,0 +1,34 @@
+name: Deploy Website
+
+on:
+    push:
+        branches: [main]
+
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        name: Deploying to surge
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v2.1.5
+              with:
+                  node-version: 14
+
+            - name: Install surge
+              run: npm i -g surge
+
+            - name: Install Quasar
+              run: npm i -g @quasar/cli
+
+            - name: Install dependencies
+              run: npm i
+
+            - name: Build SPA
+              run: API=${{secrets.API}} npm run build
+
+            - name: Fire deployment to Surge
+              run: surge ./dist/spa ${{secrets.SURGE_DOMAIN}} --token ${{secrets.SURGE_TOKEN}}
